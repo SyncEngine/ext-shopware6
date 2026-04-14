@@ -19,6 +19,14 @@ class Client
     private string $root;
     private SystemConfigService $config;
 
+    private const LOCAL_DEV_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        '::1',
+        'host.docker.internal',
+        'gateway.docker.internal',
+    ];
+
     public function __construct(string $host, string $token, SystemConfigService $config, array $options = [])
     {
         $this->host = rtrim(trim($host), '/');
@@ -152,6 +160,13 @@ class Client
             'timeout' => 30,
         ];
 
+        // Disable SSL verification for local development hosts.
+        $host = parse_url($this->host, PHP_URL_HOST) ?? '';
+        if ($this->isLocalDevHost($host)) {
+            $requestOptions['verify_peer'] = false;
+            $requestOptions['verify_host'] = false;
+        }
+
         $query = (array) ($options['query'] ?? []);
         if ($query !== []) {
             $requestOptions['query'] = $query;
@@ -181,5 +196,22 @@ class Client
         }
 
         return $decoded;
+    }
+
+    private function isLocalDevHost(string $host): bool
+    {
+        $host = strtolower(trim($host));
+        if ($host === '') {
+            return false;
+        }
+
+        if (in_array($host, self::LOCAL_DEV_HOSTS, true)) {
+            return true;
+        }
+
+        return str_ends_with($host, '.ddev.site')
+            || str_ends_with($host, '.localhost')
+            || str_ends_with($host, '.local')
+            || str_ends_with($host, '.test');
     }
 }
