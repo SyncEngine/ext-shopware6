@@ -16,39 +16,60 @@
         </template>
 
         <template #content>
-            <sw-card title="Mapped Trigger Endpoints" :isLoading="isLoading">
-                <p><strong>Last map update:</strong> {{ updatedAtLabel }}</p>
+            <sw-card-view>
+                <sw-card title="Mapped Trigger Endpoints" :isLoading="isLoading">
+                    <sw-description-list grid="1fr 2fr" class="syncengine-trigger-map-page__meta">
+                        <dt>Last map update</dt>
+                        <dd>{{ updatedAtLabel }}</dd>
+                    </sw-description-list>
 
-                <sw-alert v-if="error" variant="error" appearance="notification">
-                    {{ error }}
-                </sw-alert>
+                    <sw-alert v-if="error" variant="error" appearance="notification">
+                        {{ error }}
+                    </sw-alert>
 
-                <div v-if="!isLoading && rows.length === 0">
-                    No trigger mappings found.
-                </div>
+                    <sw-empty-state
+                        v-if="!isLoading && rows.length === 0"
+                        title="No trigger mappings found"
+                        subline="Create or update automations to populate this list."
+                    />
 
-                <table v-if="rows.length > 0" class="sw-data-grid__table">
-                    <thead>
-                        <tr>
-                            <th>Trigger</th>
-                            <th>Endpoint count</th>
-                            <th>Endpoints</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="row in rows" :key="row.trigger">
-                            <td>{{ row.trigger }}</td>
-                            <td>{{ row.endpoints.length }}</td>
-                            <td>
-                                <div v-if="row.endpoints.length === 0">-</div>
-                                <ul v-else>
-                                    <li v-for="endpoint in row.endpoints" :key="endpoint">{{ endpoint }}</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </sw-card>
+                    <sw-data-grid
+                        v-if="rows.length > 0"
+                        :dataSource="rows"
+                        :columns="columns"
+                        :showSelection="false"
+                        :showActions="false"
+                        :allowInlineEdit="false"
+                        :allowColumnEdit="false"
+                    >
+                        <template #column-trigger="{ item }">
+                            <strong>{{ item.trigger }}</strong>
+                        </template>
+
+                        <template #column-endpointCount="{ item }">
+                            <sw-label size="small" variant="neutral" appearance="pill">
+                                {{ item.endpointCount }}
+                            </sw-label>
+                        </template>
+
+                        <template #column-endpointList="{ item }">
+                            <span v-if="item.endpoints.length === 0">-</span>
+                            <div v-else>
+                                <sw-label
+                                    v-for="endpoint in item.endpoints"
+                                    :key="endpoint"
+                                    size="small"
+                                    variant="info"
+                                    appearance="pill"
+                                    class="syncengine-trigger-map-page__endpoint"
+                                >
+                                    {{ endpoint }}
+                                </sw-label>
+                            </div>
+                        </template>
+                    </sw-data-grid>
+                </sw-card>
+            </sw-card-view>
         </template>
     </sw-page>
 {% endblock %}
