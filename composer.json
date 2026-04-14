@@ -1,0 +1,18 @@
+{
+  "name": "syncengine/ext-shopware6",
+  "description": "Shopware 6 plugin for SyncEngine trigger dispatching and endpoint mapping",
+  "type": "shopware-platform-plugin",
+  "license": "proprietary",
+  "autoload": {
+    "psr-4": {
+      "SyncEngine\\Shopware\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "SyncEngine\\Shopware\\SyncEngineConnector",
+    "label": {
+      "en-GB": "SyncEngine Connector"
+    }
+  },
+  "require": {}
+}
