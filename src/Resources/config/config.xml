@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>SyncEngine</title>
+
+        <input-field type="text">
+            <name>apiHost</name>
+            <label>SyncEngine Host</label>
+            <placeholder>https://syncengine.example.com</placeholder>
+        </input-field>
+
+        <input-field type="password">
+            <name>apiToken</name>
+            <label>SyncEngine Token</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>apiAuthHeader</name>
+            <label>Auth Header (optional)</label>
+            <placeholder>Authorization</placeholder>
+        </input-field>
+
+        <input-field type="bool">
+            <name>triggersEnabled</name>
+            <label>Enable trigger dispatching</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+</config>
