@@ -150,7 +150,9 @@ class TriggerService
             return;
         }
 
-        $data = $kind === 'deleted' ? ['id' => $id] : $this->payloadService->getProductData($id, $context);
+        $data = $kind === 'deleted'
+            ? $this->payloadService->getDeletedEntityData('product', $id)
+            : $this->payloadService->getProductData($id, $context);
         $this->dispatchEntityEvent($map[$kind][0], $map[$kind][1], $id, $data, ['entity' => 'product']);
     }
 
@@ -166,7 +168,9 @@ class TriggerService
             return;
         }
 
-        $data = $kind === 'deleted' ? ['id' => $id] : $this->payloadService->getOrderData($id, $context);
+        $data = $kind === 'deleted'
+            ? $this->payloadService->getDeletedEntityData('order', $id)
+            : $this->payloadService->getOrderData($id, $context);
         $this->dispatchEntityEvent($map[$kind][0], $map[$kind][1], $id, $data, ['entity' => 'order']);
     }
 
@@ -182,7 +186,9 @@ class TriggerService
             return;
         }
 
-        $data = $kind === 'deleted' ? ['id' => $id] : $this->payloadService->getCustomerData($id, $context);
+        $data = $kind === 'deleted'
+            ? $this->payloadService->getDeletedEntityData('customer', $id)
+            : $this->payloadService->getCustomerData($id, $context);
         $this->dispatchEntityEvent($map[$kind][0], $map[$kind][1], $id, $data, ['entity' => 'customer']);
     }
 

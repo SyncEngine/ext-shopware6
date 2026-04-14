@@ -33,13 +33,7 @@ class ShopwarePayloadService
         }
 
         $entity = $this->productRepository->search(new Criteria([$id]), $context)->first();
-        if (!$entity instanceof ProductEntity) {
-            return ['id' => $id];
-        }
-
-        $data = $this->normalizeValue($entity);
-        $data['id'] = $id;
-        return $data;
+        return $this->buildEntityPayload('product', $id, $entity instanceof ProductEntity ? $entity : null);
     }
 
     public function getOrderData(string $id, Context $context): array
@@ -49,13 +43,7 @@ class ShopwarePayloadService
         }
 
         $entity = $this->orderRepository->search(new Criteria([$id]), $context)->first();
-        if (!$entity instanceof OrderEntity) {
-            return ['id' => $id];
-        }
-
-        $data = $this->normalizeValue($entity);
-        $data['id'] = $id;
-        return $data;
+        return $this->buildEntityPayload('order', $id, $entity instanceof OrderEntity ? $entity : null);
     }
 
     public function getCustomerData(string $id, Context $context): array
@@ -65,13 +53,21 @@ class ShopwarePayloadService
         }
 
         $entity = $this->customerRepository->search(new Criteria([$id]), $context)->first();
-        if (!$entity instanceof CustomerEntity) {
-            return ['id' => $id];
-        }
+        return $this->buildEntityPayload('customer', $id, $entity instanceof CustomerEntity ? $entity : null);
+    }
 
-        $data = $this->normalizeValue($entity);
-        $data['id'] = $id;
-        return $data;
+    public function getDeletedEntityData(string $type, string $id): array
+    {
+        return [
+            'data' => [
+                'id' => $id,
+                'type' => $type,
+                'attributes' => [],
+                'relationships' => [],
+                'meta' => null,
+            ],
+            'included' => [],
+        ];
     }
 
     public function normalizeValue($value, int $depth = 0)
@@ -110,5 +106,89 @@ class ShopwarePayloadService
         }
 
         return gettype($value);
+    }
+
+    private function buildEntityPayload(string $type, string $id, ?object $entity): array
+    {
+        if ($entity === null) {
+            return $this->getDeletedEntityData($type, $id);
+        }
+
+        $normalized = $this->normalizeValue($entity);
+        if (!is_array($normalized)) {
+            return $this->getDeletedEntityData($type, $id);
+        }
+
+        $attributes = [];
+        $relationships = [];
+
+        foreach ($normalized as $key => $value) {
+            if (!is_string($key) || $key === 'id' || $key === 'apiAlias') {
+                continue;
+            }
+
+            if ($this->isRelationshipCandidate($value)) {
+                $relationships[$key] = [
+                    'data' => $this->toRelationshipData($value),
+                ];
+                continue;
+            }
+
+            $attributes[$key] = $value;
+        }
+
+        return [
+            'data' => [
+                'id' => $id,
+                'type' => $type,
+                'attributes' => $attributes,
+                'relationships' => $relationships,
+                'meta' => null,
+            ],
+            'included' => [],
+            '_handler' => 'syncengine',
+        ];
+    }
+
+    private function isRelationshipCandidate($value): bool
+    {
+        if (!is_array($value) || $value === []) {
+            return false;
+        }
+
+        if (isset($value['id']) || isset($value['apiAlias'])) {
+            return true;
+        }
+
+        $first = reset($value);
+        return is_array($first) && (isset($first['id']) || isset($first['apiAlias']));
+    }
+
+    private function toRelationshipData($value)
+    {
+        if (!is_array($value)) {
+            return null;
+        }
+
+        if (isset($value['id'])) {
+            return [
+                'id' => (string) $value['id'],
+                'type' => (string) ($value['apiAlias'] ?? 'entity'),
+            ];
+        }
+
+        $data = [];
+        foreach ($value as $item) {
+            if (!is_array($item) || !isset($item['id'])) {
+                continue;
+            }
+
+            $data[] = [
+                'id' => (string) $item['id'],
+                'type' => (string) ($item['apiAlias'] ?? 'entity'),
+            ];
+        }
+
+        return $data;
     }
 }
