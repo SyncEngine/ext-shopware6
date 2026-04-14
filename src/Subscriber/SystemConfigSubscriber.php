@@ -9,6 +9,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SystemConfigSubscriber implements EventSubscriberInterface
 {
+    /**
+     * Only react to user-managed settings changes.
+     * Internal cache/throttle keys must not trigger more cache writes/deletes.
+     */
+    private const WATCHED_CONFIG_KEYS = [
+        ClientService::CONFIG_API_HOST,
+        ClientService::CONFIG_API_TOKEN,
+        ClientService::CONFIG_API_AUTH_HEADER,
+        TriggerService::CONFIG_TRIGGERS_ENABLED,
+    ];
+
     private ClientService $clientService;
     private TriggerService $triggerService;
 
@@ -27,7 +38,9 @@ class SystemConfigSubscriber implements EventSubscriberInterface
 
     public function onSystemConfigChanged(SystemConfigChangedEvent $event): void
     {
-        if (!str_starts_with($event->getKey(), 'SyncEngineConnector.config.')) {
+        $key = $event->getKey();
+
+        if (!in_array($key, self::WATCHED_CONFIG_KEYS, true)) {
             return;
         }
 
