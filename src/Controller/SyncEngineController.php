@@ -38,25 +38,20 @@ class SyncEngineController extends AbstractController
     #[Route(
         path: '/api/_action/syncengine/status',
         name: 'api.action.syncengine.status',
-        methods: ['GET'],
-        defaults: ['auth_required' => false]
+        methods: ['GET']
     )]
     public function status(): JsonResponse
     {
-        $client = $this->clientService->getClient();
-        $status = $client ? $client->status() : 'offline';
-
         return new JsonResponse([
             'success' => true,
-            'status' => $status === '' ? 'offline' : $status,
+            'status' => 'online',
         ]);
     }
 
     #[Route(
         path: '/api/_action/syncengine/refresh',
         name: 'api.action.syncengine.refresh',
-        methods: ['POST'],
-        defaults: ['auth_required' => false]
+        methods: ['POST']
     )]
     public function refresh(Request $request): JsonResponse
     {
@@ -84,6 +79,20 @@ class SyncEngineController extends AbstractController
             'refreshed' => true,
             'trusted' => $trusted,
             'timestamp' => time(),
+        ]);
+    }
+
+    #[Route(
+        path: '/api/_action/syncengine/trigger-map',
+        name: 'api.action.syncengine.trigger_map',
+        methods: ['GET']
+    )]
+    public function triggerMap(): JsonResponse
+    {
+        return new JsonResponse([
+            'success' => true,
+            'updatedAt' => (int) ($this->config->get(TriggerService::CONFIG_TRIGGER_MAP_TS) ?? 0),
+            'triggerMap' => $this->triggerService->getTriggerEndpointMap(),
         ]);
     }
 }

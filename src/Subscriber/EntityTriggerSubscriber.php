@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use SyncEngine\Shopware\Service\TriggerService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

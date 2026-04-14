@@ -1,0 +1,54 @@
+{% block syncengine_trigger_map_page %}
+    <sw-page class="syncengine-trigger-map-page">
+        <template #smart-bar-header>
+            <h2>SyncEngine Trigger Map</h2>
+        </template>
+
+        <template #smart-bar-actions>
+            <sw-button-process
+                :isLoading="isRefreshing"
+                :processSuccess="false"
+                variant="primary"
+                @click="onRefresh"
+            >
+                Refresh map
+            </sw-button-process>
+        </template>
+
+        <template #content>
+            <sw-card title="Mapped Trigger Endpoints" :isLoading="isLoading">
+                <p><strong>Last map update:</strong> {{ updatedAtLabel }}</p>
+
+                <sw-alert v-if="error" variant="error" appearance="notification">
+                    {{ error }}
+                </sw-alert>
+
+                <div v-if="!isLoading && rows.length === 0">
+                    No trigger mappings found.
+                </div>
+
+                <table v-if="rows.length > 0" class="sw-data-grid__table">
+                    <thead>
+                        <tr>
+                            <th>Trigger</th>
+                            <th>Endpoint count</th>
+                            <th>Endpoints</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in rows" :key="row.trigger">
+                            <td>{{ row.trigger }}</td>
+                            <td>{{ row.endpoints.length }}</td>
+                            <td>
+                                <div v-if="row.endpoints.length === 0">-</div>
+                                <ul v-else>
+                                    <li v-for="endpoint in row.endpoints" :key="endpoint">{{ endpoint }}</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </sw-card>
+        </template>
+    </sw-page>
+{% endblock %}

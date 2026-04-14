@@ -6,7 +6,15 @@
     <services>
         <defaults autowire="true" autoconfigure="true" public="false"/>
 
-        <service id="SyncEngine\Shopware\" resource="../../"/>
+        <service id="SyncEngine\Shopware\Api\Client" autowire="true"/>
+
+        <service id="SyncEngine\Shopware\Service\ClientService" autowire="true"/>
+
+        <service id="SyncEngine\Shopware\Service\EndpointDispatcherService" autowire="true"/>
+
+        <service id="SyncEngine\Shopware\Service\RefreshTrustService" autowire="true"/>
+
+        <service id="SyncEngine\Shopware\Service\TriggerService" autowire="true"/>
 
         <service id="SyncEngine\Shopware\Service\ShopwarePayloadService">
             <argument type="service" id="product.repository"/>
