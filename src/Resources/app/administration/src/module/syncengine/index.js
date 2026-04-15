@@ -44,8 +44,8 @@ Module.register('syncengine-trigger-map', {
     name: 'SyncEngineTriggerMap',
     title: 'syncengine-trigger-map.general.mainMenuItemGeneral',
     description: 'syncengine-trigger-map.general.descriptionTextModule',
-    color: '#1f7a8c',
-    icon: 'regular-chart-line',
+    color: '#11196d',
+    icon: 'regular-sync',
 
     routes: {
         index: {
@@ -57,7 +57,7 @@ Module.register('syncengine-trigger-map', {
     settingsItem: {
         group: 'plugins',
         to: 'syncengine.trigger.map.index',
-        icon: 'regular-chart-line',
+        icon: 'regular-sync',
         label: 'syncengine-trigger-map.general.mainMenuItemGeneral',
     },
 
