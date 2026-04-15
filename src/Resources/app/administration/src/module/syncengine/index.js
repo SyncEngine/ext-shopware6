@@ -1,6 +1,9 @@
 import './page/syncengine-trigger-map';
+import syncengineSettingsIcon from './components/syncengine-settings-icon';
 
-const { Application, Module } = Shopware;
+const { Application, Module, Component } = Shopware;
+
+Component.register('syncengine-settings-icon', syncengineSettingsIcon);
 const ApiService = Shopware.Classes.ApiService;
 
 class SyncEngineApiService extends ApiService {
@@ -57,7 +60,8 @@ Module.register('syncengine-trigger-map', {
     settingsItem: {
         group: 'plugins',
         to: 'syncengine.trigger.map.index',
-        icon: 'regular-sync',
+        iconComponent: 'syncengine-settings-icon',
+        backgroundEnabled: true,
         label: 'syncengine-trigger-map.general.mainMenuItemGeneral',
     },
 
