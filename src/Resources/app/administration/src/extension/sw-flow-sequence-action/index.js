@@ -1,4 +1,5 @@
 import { ACTION, MODAL } from '../../constant/syncengine-flow-action.constant';
+import { SYNCENGINE_FLOW_ICON_RAW } from '../../constant/syncengine-icon';
 
 const { Component } = Shopware;
 
@@ -18,7 +19,7 @@ Component.override('sw-flow-sequence-action', {
             if (actionName === ACTION.TRIGGER_SYNCENGINE_ENDPOINT) {
                 return {
                     value: actionName,
-                    icon: 'regular-paper-plane',
+                    iconRaw: SYNCENGINE_FLOW_ICON_RAW,
                     label: 'Trigger SyncEngine Endpoint',
                     group: 'general',
                 };
