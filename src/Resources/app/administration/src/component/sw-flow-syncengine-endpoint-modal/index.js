@@ -9,6 +9,10 @@ Component.register('sw-flow-syncengine-endpoint-modal', {
         'notification',
     ],
 
+    inject: [
+        'syncEngineApiService',
+    ],
+
     props: {
         sequence: {
             type: Object,
@@ -21,15 +25,41 @@ Component.register('sw-flow-syncengine-endpoint-modal', {
 
         return {
             endpoint: config.endpoint || '',
-            trigger: config.trigger || '',
+            triggerEventName: config.trigger || '',
             custom: this.normalizeCustom(config.custom),
+            endpointOptions: [],
+            isLoadingEndpoints: true,
         };
     },
 
+    created() {
+        this.loadEndpoints();
+    },
+
     methods: {
+        loadEndpoints() {
+            this.isLoadingEndpoints = true;
+            this.syncEngineApiService.getEndpoints()
+                .then((response) => {
+                    this.endpointOptions = (response?.endpoints || []).map((ep) => ({
+                        value: ep.value,
+                        label: ep.label || ep.value,
+                    }));
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        title: 'Could not load endpoints',
+                        message: 'Make sure SyncEngine is connected and configured.',
+                    });
+                })
+                .finally(() => {
+                    this.isLoadingEndpoints = false;
+                });
+        },
+
         normalizeCustom(custom) {
             if (!custom) {
-                return '{}';
+                return '';
             }
 
             if (typeof custom === 'string') {
@@ -39,7 +69,7 @@ Component.register('sw-flow-syncengine-endpoint-modal', {
             try {
                 return JSON.stringify(custom, null, 2);
             } catch (e) {
-                return '{}';
+                return '';
             }
         },
 
@@ -52,7 +82,7 @@ Component.register('sw-flow-syncengine-endpoint-modal', {
             if (!endpoint) {
                 this.createNotificationError({
                     title: 'Missing endpoint',
-                    message: 'Endpoint is required for Trigger SyncEngine Endpoint.',
+                    message: 'Please select an endpoint.',
                 });
                 return;
             }
@@ -74,7 +104,7 @@ Component.register('sw-flow-syncengine-endpoint-modal', {
                 ...this.sequence,
                 config: {
                     endpoint,
-                    trigger: (this.trigger || '').trim(),
+                    trigger: (this.triggerEventName || '').trim(),
                     custom,
                 },
             });

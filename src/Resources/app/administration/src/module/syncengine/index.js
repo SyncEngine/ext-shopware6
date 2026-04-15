@@ -16,6 +16,14 @@ class SyncEngineApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    getEndpoints() {
+        return this.httpClient
+            .get('_action/syncengine/endpoints', {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
     refreshTriggerMap() {
         return this.httpClient
             .post('_action/syncengine/refresh', {}, {

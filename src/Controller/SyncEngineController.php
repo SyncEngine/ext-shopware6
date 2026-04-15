@@ -95,4 +95,33 @@ class SyncEngineController extends AbstractController
             'triggerMap' => $this->triggerService->getTriggerEndpointMap(),
         ]);
     }
+
+    #[Route(
+        path: '/api/_action/syncengine/endpoints',
+        name: 'api.action.syncengine.endpoints',
+        methods: ['GET']
+    )]
+    public function endpoints(): JsonResponse
+    {
+        $client = $this->clientService->getClient();
+        if (!$client) {
+            return new JsonResponse(['success' => false, 'endpoints' => [], 'error' => 'SyncEngine client not configured.']);
+        }
+
+        $raw = $client->listEndpoints();
+
+        $endpoints = [];
+        foreach ($raw as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $key = trim((string) ($item['endpoint'] ?? $item['ref'] ?? ''));
+            $label = trim((string) ($item['label'] ?? $item['name'] ?? $key));
+            if ($key !== '') {
+                $endpoints[] = ['value' => $key, 'label' => $label !== '' ? $label : $key];
+            }
+        }
+
+        return new JsonResponse(['success' => true, 'endpoints' => $endpoints]);
+    }
 }

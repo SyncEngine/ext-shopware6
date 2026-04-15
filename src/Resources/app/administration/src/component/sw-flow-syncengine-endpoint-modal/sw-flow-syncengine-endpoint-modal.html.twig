@@ -5,23 +5,28 @@
     @modal-close="onClose"
 >
     {% block syncengine_trigger_endpoint_modal_content %}
-        <sw-text-field
+        <sw-single-select
             v-model:value="endpoint"
             label="Endpoint"
-            placeholder="orders/on-paid"
+            :options="endpointOptions"
+            :is-loading="isLoadingEndpoints"
+            :placeholder="isLoadingEndpoints ? 'Loading endpoints...' : 'Select an endpoint'"
+            value-property="value"
+            label-property="label"
             required
         />
 
         <sw-text-field
-            v-model:value="trigger"
-            label="Trigger (optional)"
-            placeholder="shopware_flow_order_paid"
+            v-model:value="triggerEventName"
+            label="Trigger event name (optional)"
+            placeholder="default"
+            help-text="The event name sent to SyncEngine. When empty it is auto-derived from the flow name."
         />
 
         <sw-textarea-field
             v-model:value="custom"
-            label="Custom Payload JSON (optional)"
-            placeholder="{\n  \"source\": \"shopware-flow\"\n}"
+            label="Custom payload JSON (optional)"
+            placeholder="{ }"
             rows="8"
         />
     {% endblock %}
