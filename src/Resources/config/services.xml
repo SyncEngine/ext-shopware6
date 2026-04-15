@@ -16,6 +16,10 @@
 
         <service id="SyncEngine\Shopware\Service\TriggerService" autowire="true"/>
 
+        <service id="SyncEngine\Shopware\Flow\Action\TriggerSyncEngineEndpointAction">
+            <tag name="flow.action" priority="600" key="action.syncengine.trigger_endpoint"/>
+        </service>
+
         <service id="SyncEngine\Shopware\Service\ShopwarePayloadService">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="order.repository"/>

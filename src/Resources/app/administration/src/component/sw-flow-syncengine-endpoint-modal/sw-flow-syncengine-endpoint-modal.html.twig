@@ -1,0 +1,48 @@
+{% block syncengine_trigger_endpoint_modal %}
+<sw-modal
+    class="syncengine-trigger-endpoint-modal"
+    title="Trigger SyncEngine Endpoint"
+    @modal-close="onClose"
+>
+    {% block syncengine_trigger_endpoint_modal_content %}
+        <sw-text-field
+            v-model:value="endpoint"
+            label="Endpoint"
+            placeholder="orders/on-paid"
+            required
+        />
+
+        <sw-text-field
+            v-model:value="trigger"
+            label="Trigger (optional)"
+            placeholder="shopware_flow_order_paid"
+        />
+
+        <sw-textarea-field
+            v-model:value="custom"
+            label="Custom Payload JSON (optional)"
+            placeholder="{\n  \"source\": \"shopware-flow\"\n}"
+            rows="8"
+        />
+    {% endblock %}
+
+    {% block syncengine_trigger_endpoint_modal_footer %}
+        <template #modal-footer>
+            <sw-button
+                size="small"
+                @click="onClose"
+            >
+                Cancel
+            </sw-button>
+
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="onSave"
+            >
+                Save action
+            </sw-button>
+        </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}
