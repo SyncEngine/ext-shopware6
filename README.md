@@ -5,10 +5,11 @@ Shopware 6 plugin that connects a Shopware instance to [SyncEngine](https://sync
 ## Features
 
 - **SyncEngine API connection** via host + token (+ optional custom auth header)
-- **Automatic trigger mapping** based on SyncEngine automations using Shopware trigger blueprints
+- **Trigger discovery + mapping** from SyncEngine automations/connections to Shopware trigger blueprints
 - **Entity event dispatching** for Product, Order, and Customer create/update/delete operations
-- **Connector endpoints** for health checks, cache refresh, and trigger-map inspection
-- **Shopware Administration module** to inspect and refresh the current trigger map
+- **Shopware Flow Builder integration** with action `Trigger SyncEngine Endpoint` (endpoint picker, optional trigger-event override, optional custom JSON payload)
+- **Connector action routes** for status, cache refresh, trigger-map inspection, and Flow endpoint listing
+- **Shopware Administration tools** to inspect and refresh the current trigger map
 - **Refresh trust + throttling** to protect refresh endpoint from request storms
 - **Local development support** (localhost/DDEV/docker host TLS handling)
 
@@ -137,6 +138,20 @@ Outgoing trigger payload uses JSON:API-like envelope for entity data:
 
 For delete events, `attributes`/`relationships` are empty but envelope remains stable.
 
+### Flow Builder payload behavior
+
+The Flow Builder action `Trigger SyncEngine Endpoint` dispatches to a selected SyncEngine endpoint.
+
+Config fields in the modal:
+
+- **Endpoint** (required): selected from `/api/_action/syncengine/endpoints`
+- **Trigger event name (optional)**: overrides event name sent to SyncEngine
+- **Custom payload JSON (optional)**: validated JSON merged as custom payload input
+
+When trigger event name is empty, the plugin derives a default event name from the Flow/action context.
+
+The action also forwards selected entity context when available (for example order/customer/product references), and sanitizes payload content for safe transport.
+
 ---
 
 ## Connector API Endpoints
@@ -148,6 +163,7 @@ The plugin exposes these Shopware API action routes:
 | `GET` | `/api/_action/syncengine/status` | Fast local status check (`online`) |
 | `POST` | `/api/_action/syncengine/refresh` | Clears trigger map cache (throttled) |
 | `GET` | `/api/_action/syncengine/trigger-map` | Returns current cached/rebuilt trigger map |
+| `GET` | `/api/_action/syncengine/endpoints` | Returns endpoint options for Flow Builder endpoint picker |
 
 ### Status response
 
@@ -194,6 +210,20 @@ The plugin exposes these Shopware API action routes:
 }
 ```
 
+### Endpoints response
+
+```json
+{
+	"success": true,
+	"endpoints": [
+		{
+			"value": "endpoint-a",
+			"label": "endpoint-a"
+		}
+	]
+}
+```
+
 ---
 
 ## Refresh Trust & Throttling
@@ -216,12 +246,14 @@ This keeps endpoint responsive while preventing invalidation storms.
 The plugin registers a settings module entry:
 
 - **Settings -> Plugins -> SyncEngine Trigger Map**
+- **Flow Builder action -> Trigger SyncEngine Endpoint**
 
 Capabilities:
 
 - View all trigger keys and resolved endpoint mappings
 - Inspect endpoint counts
 - Manual refresh action (calls connector refresh endpoint)
+- In Flow Builder: select endpoint, optionally override trigger event name, optionally provide custom JSON payload
 
 ---
 
