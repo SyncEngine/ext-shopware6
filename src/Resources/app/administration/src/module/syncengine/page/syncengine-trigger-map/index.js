@@ -11,10 +11,12 @@ Component.register('syncengine-trigger-map-page', {
     data() {
         return {
             isLoading: false,
+            isEndpointsLoading: false,
             isRefreshing: false,
             error: '',
             updatedAt: 0,
             rows: [],
+            endpointRows: [],
         };
     },
 
@@ -49,13 +51,53 @@ Component.register('syncengine-trigger-map-page', {
                 },
             ];
         },
+
+        endpointColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: 'Name',
+                    primary: true,
+                    allowResize: true,
+                },
+                {
+                    property: 'endpoint',
+                    label: 'Endpoint',
+                    allowResize: true,
+                },
+                {
+                    property: 'statusLabel',
+                    label: 'Status',
+                    allowResize: true,
+                },
+                {
+                    property: 'traceLabel',
+                    label: 'Trace',
+                    allowResize: true,
+                },
+                {
+                    property: 'actions',
+                    label: 'Actions',
+                    width: '100px',
+                    allowResize: false,
+                    align: 'right',
+                },
+            ];
+        },
     },
 
     created() {
-        this.loadMap();
+        this.loadInitialData();
     },
 
     methods: {
+        async loadInitialData() {
+            await Promise.all([
+                this.loadMap(),
+                this.loadEndpoints(),
+            ]);
+        },
+
         async loadMap() {
             this.error = '';
             this.isLoading = true;
@@ -78,13 +120,92 @@ Component.register('syncengine-trigger-map-page', {
             }
         },
 
+        async loadEndpoints() {
+            this.error = '';
+            this.isEndpointsLoading = true;
+
+            try {
+                const result = await this.syncEngineApiService.getEndpoints();
+                const endpoints = Array.isArray(result.endpoints) ? result.endpoints : [];
+
+                this.endpointRows = endpoints
+                    .map((item) => {
+                        const endpoint = String(item?.value || '').trim();
+                        const name = String(item?.label || endpoint).trim() || endpoint;
+
+                        if (!endpoint) {
+                            return null;
+                        }
+
+                        return {
+                            id: endpoint,
+                            name,
+                            endpoint,
+                            statusLabel: 'not loaded',
+                            traceLabel: '-',
+                            statusLoaded: false,
+                            statusLoading: false,
+                            executeLoading: false,
+                        };
+                    })
+                    .filter((item) => item !== null);
+            } catch (e) {
+                this.error = e?.message || 'Failed to load endpoints';
+            } finally {
+                this.isEndpointsLoading = false;
+            }
+        },
+
+        async onLoadEndpointStatus(item) {
+            if (!item || !item.endpoint || item.statusLoading) {
+                return;
+            }
+
+            item.statusLoading = true;
+
+            try {
+                const result = await this.syncEngineApiService.getEndpointStatus(item.endpoint, item.statusLoaded);
+                const runningCount = Array.isArray(result.running) ? result.running.length : 0;
+                const scheduledCount = Array.isArray(result.scheduled) ? result.scheduled.length : 0;
+                const queuedCount = Array.isArray(result.queued) ? result.queued.length : 0;
+
+                item.statusLabel = String(result.status || 'unknown').toLowerCase();
+                item.traceLabel = `running: ${runningCount} | scheduled: ${scheduledCount} | queued: ${queuedCount}`;
+                item.statusLoaded = true;
+            } catch (e) {
+                item.statusLabel = e?.message || 'Failed to load status';
+                item.traceLabel = '-';
+            } finally {
+                item.statusLoading = false;
+            }
+        },
+
+        async onExecuteEndpoint(item) {
+            if (!item || !item.endpoint || item.executeLoading) {
+                return;
+            }
+
+            item.executeLoading = true;
+
+            try {
+                await this.syncEngineApiService.executeEndpoint(item.endpoint);
+            } catch (e) {
+                item.statusLabel = e?.message || 'Endpoint execution failed';
+            } finally {
+                item.executeLoading = false;
+            }
+        },
+
         async onRefresh() {
             this.isRefreshing = true;
             this.error = '';
 
             try {
                 await this.syncEngineApiService.refreshTriggerMap();
-                await this.loadMap();
+                await Promise.all([
+                    this.loadMap(),
+                    this.loadEndpoints(),
+                ]);
             } catch (e) {
                 this.error = e?.message || 'Failed to refresh trigger map';
             } finally {

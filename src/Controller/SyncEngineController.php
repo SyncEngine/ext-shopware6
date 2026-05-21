@@ -124,4 +124,99 @@ class SyncEngineController extends AbstractController
 
         return new JsonResponse(['success' => true, 'endpoints' => $endpoints]);
     }
+
+    #[Route(
+        path: '/api/_action/syncengine/endpoint-status',
+        name: 'api.action.syncengine.endpoint_status',
+        methods: ['POST']
+    )]
+    public function endpointStatus(Request $request): JsonResponse
+    {
+        $client = $this->clientService->getClient();
+        if (!$client) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SyncEngine client not configured.',
+            ]);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        $payload = is_array($payload) ? $payload : [];
+
+        $endpoint = trim((string) ($payload['endpoint'] ?? ''));
+        $refresh = (bool) ($payload['refresh'] ?? false);
+
+        if ($endpoint === '') {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Endpoint not specified.',
+            ]);
+        }
+
+        $result = $client->getEndpointStatus($endpoint, $refresh);
+        $success = (bool) ($result['success'] ?? true);
+
+        if (!$success) {
+            return new JsonResponse([
+                'success' => false,
+                'endpoint' => $endpoint,
+                'error' => (string) ($result['error'] ?? 'Failed to load endpoint status.'),
+            ]);
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'endpoint' => $endpoint,
+            'status' => strtolower((string) ($result['status'] ?? 'unknown')),
+            'can_execute' => (bool) ($result['can_execute'] ?? false),
+            'can_schedule' => (bool) ($result['can_schedule'] ?? false),
+            'running' => is_array($result['running'] ?? null) ? $result['running'] : [],
+            'scheduled' => is_array($result['scheduled'] ?? null) ? $result['scheduled'] : [],
+            'queued' => is_array($result['queued'] ?? null) ? $result['queued'] : [],
+        ]);
+    }
+
+    #[Route(
+        path: '/api/_action/syncengine/endpoint-execute',
+        name: 'api.action.syncengine.endpoint_execute',
+        methods: ['POST']
+    )]
+    public function endpointExecute(Request $request): JsonResponse
+    {
+        $client = $this->clientService->getClient();
+        if (!$client) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SyncEngine client not configured.',
+            ]);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        $payload = is_array($payload) ? $payload : [];
+
+        $endpoint = trim((string) ($payload['endpoint'] ?? ''));
+
+        if ($endpoint === '') {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Endpoint not specified.',
+            ]);
+        }
+
+        $result = $client->executeEndpoint($endpoint);
+        $success = (bool) ($result['success'] ?? true);
+        if (!$success) {
+            return new JsonResponse([
+                'success' => false,
+                'endpoint' => $endpoint,
+                'error' => (string) ($result['error'] ?? 'Endpoint execution failed.'),
+            ]);
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'endpoint' => $endpoint,
+            'result' => $result,
+        ]);
+    }
 }

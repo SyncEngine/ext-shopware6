@@ -113,6 +113,31 @@ class Client
         return $this->triggerEndpoint($endpoint, [], 'execute');
     }
 
+    public function getEndpointStatus(string $endpoint, bool $refresh = false): array
+    {
+        $endpoint = trim($endpoint, '/');
+        if ($endpoint === '') {
+            return ['success' => false, 'error' => 'Invalid endpoint.'];
+        }
+
+        try {
+            $result = $this->request(
+                'endpoint/' . $endpoint . '/status',
+                'GET',
+                [
+                    'version' => false,
+                    'query' => [
+                        'refresh' => $refresh ? '1' : '0',
+                    ],
+                ]
+            );
+        } catch (\Throwable $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+
+        return is_array($result) ? $result : ['success' => true, 'data' => $result];
+    }
+
     public function triggerEndpoint(string $endpoint, array $payload = [], string $action = ''): array
     {
         $endpoint = trim($endpoint, '/');

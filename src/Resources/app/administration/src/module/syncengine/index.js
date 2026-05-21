@@ -37,6 +37,27 @@ class SyncEngineApiService extends ApiService {
             })
             .then((response) => ApiService.handleResponse(response));
     }
+
+    getEndpointStatus(endpoint, refresh = false) {
+        return this.httpClient
+            .post('_action/syncengine/endpoint-status', {
+                endpoint,
+                refresh,
+            }, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    executeEndpoint(endpoint) {
+        return this.httpClient
+            .post('_action/syncengine/endpoint-execute', {
+                endpoint,
+            }, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
 }
 
 Application.addServiceProvider('syncEngineApiService', (container) => {
@@ -45,7 +66,7 @@ Application.addServiceProvider('syncEngineApiService', (container) => {
     return new SyncEngineApiService(initContainer.httpClient, container.loginService);
 });
 
-Module.register('syncengine-trigger-map', {
+Module.register('syncengine-connector', {
     type: 'plugin',
     name: 'SyncEngineTriggerMap',
     title: 'syncengine-trigger-map.general.mainMenuItemGeneral',
@@ -62,7 +83,7 @@ Module.register('syncengine-trigger-map', {
 
     settingsItem: {
         group: 'plugins',
-        to: 'syncengine.trigger.map.index',
+        to: 'syncengine.connector.index',
         iconComponent: 'syncengine-settings-icon',
         backgroundEnabled: true,
         label: 'syncengine-trigger-map.general.mainMenuItemGeneral',
@@ -72,16 +93,16 @@ Module.register('syncengine-trigger-map', {
         'en-GB': {
             'syncengine-trigger-map': {
                 general: {
-                    mainMenuItemGeneral: 'SyncEngine Trigger Map',
-                    descriptionTextModule: 'Inspect and refresh mapped trigger endpoints',
+                    mainMenuItemGeneral: 'SyncEngine Connector',
+                    descriptionTextModule: 'Inspect endpoints and refresh mapped trigger connections',
                 },
             },
         },
         'de-DE': {
             'syncengine-trigger-map': {
                 general: {
-                    mainMenuItemGeneral: 'SyncEngine Trigger-Map',
-                    descriptionTextModule: 'Zuordnungen und Trigger-Endpunkte anzeigen und aktualisieren',
+                    mainMenuItemGeneral: 'SyncEngine Connector',
+                    descriptionTextModule: 'Endpunkte und Trigger-Zuordnungen anzeigen und aktualisieren',
                 },
             },
         },

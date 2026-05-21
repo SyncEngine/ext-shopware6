@@ -13,3 +13,26 @@
 .syncengine-trigger-map-page__endpoint {
     margin: 0 6px 6px 0;
 }
+
+.syncengine-trigger-map-page__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.syncengine-trigger-map-page__execute-action {
+    margin-left: 0;
+}
+
+.syncengine-trigger-map-page__icon-action.sw-button-process {
+    min-width: 30px;
+    width: 30px;
+    padding: 0;
+}
+
+.syncengine-trigger-map-page__icon-action.sw-button-process .sw-button-process__button {
+    padding: 0;
+}

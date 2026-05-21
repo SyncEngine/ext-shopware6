@@ -1,23 +1,88 @@
 {% block syncengine_trigger_map_page %}
     <sw-page class="syncengine-trigger-map-page">
         <template #smart-bar-header>
-            <h2><syncengine-settings-icon class="syncengine-trigger-map-page__header-icon" /> SyncEngine Trigger Map</h2>
-        </template>
-
-        <template #smart-bar-actions>
-            <sw-button-process
-                :isLoading="isRefreshing"
-                :processSuccess="false"
-                variant="primary"
-                @click="onRefresh"
-            >
-                Refresh map
-            </sw-button-process>
+            <h2><syncengine-settings-icon class="syncengine-trigger-map-page__header-icon" /> SyncEngine Connector</h2>
         </template>
 
         <template #content>
             <sw-card-view>
+                <sw-card title="Endpoint Status" :isLoading="isEndpointsLoading">
+                    <sw-empty-state
+                        v-if="!isEndpointsLoading && endpointRows.length === 0"
+                        title="No endpoints found"
+                        subline="Check SyncEngine endpoint configuration and reload this page."
+                    />
+
+                    <sw-data-grid
+                        v-if="endpointRows.length > 0"
+                        :dataSource="endpointRows"
+                        :columns="endpointColumns"
+                        :showSelection="false"
+                        :showActions="false"
+                        :allowInlineEdit="false"
+                        :allowColumnEdit="false"
+                    >
+                        <template #column-name="{ item }">
+                            <strong>{{ item.name }}</strong>
+                        </template>
+
+                        <template #column-endpoint="{ item }">
+                            <code>{{ item.endpoint }}</code>
+                        </template>
+
+                        <template #column-statusLabel="{ item }">
+                            <span v-if="item.statusLoading">loading...</span>
+                            <span v-else>{{ item.statusLabel }}</span>
+                        </template>
+
+                        <template #column-traceLabel="{ item }">
+                            <code>{{ item.traceLabel }}</code>
+                        </template>
+
+                        <template #column-actions="{ item }">
+                            <div class="syncengine-trigger-map-page__actions">
+                                <sw-button-process
+                                    size="small"
+                                    variant="secondary"
+                                    :isLoading="item.statusLoading"
+                                    :processSuccess="false"
+                                    class="syncengine-trigger-map-page__icon-action"
+                                    :title="item.statusLoaded ? 'Refresh status' : 'Load status'"
+                                    :aria-label="item.statusLoaded ? 'Refresh status' : 'Load status'"
+                                    @click="onLoadEndpointStatus(item)"
+                                >
+                                    &#x21bb;
+                                </sw-button-process>
+
+                                <sw-button-process
+                                    size="small"
+                                    variant="primary"
+                                    :isLoading="item.executeLoading"
+                                    :processSuccess="false"
+                                    class="syncengine-trigger-map-page__icon-action syncengine-trigger-map-page__execute-action"
+                                    title="Execute endpoint"
+                                    aria-label="Execute endpoint"
+                                    @click="onExecuteEndpoint(item)"
+                                >
+                                    &#9654;
+                                </sw-button-process>
+                            </div>
+                        </template>
+                    </sw-data-grid>
+                </sw-card>
+
                 <sw-card title="Mapped Trigger Endpoints" :isLoading="isLoading">
+                    <template #toolbar>
+                        <sw-button-process
+                            :isLoading="isRefreshing"
+                            :processSuccess="false"
+                            variant="primary"
+                            @click="onRefresh"
+                        >
+                            Refresh map
+                        </sw-button-process>
+                    </template>
+
                     <sw-description-list grid="1fr 2fr" class="syncengine-trigger-map-page__meta">
                         <dt>Last map update</dt>
                         <dd>{{ updatedAtLabel }}</dd>
