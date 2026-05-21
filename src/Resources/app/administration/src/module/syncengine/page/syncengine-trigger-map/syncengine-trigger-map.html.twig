@@ -6,7 +6,27 @@
 
         <template #content>
             <sw-card-view>
-                <sw-card title="Endpoint Status" :isLoading="isEndpointsLoading">
+                <sw-tabs
+                    class="syncengine-trigger-map-page__tabs"
+                    default-item="endpoints"
+                >
+                    <sw-tabs-item
+                        name="endpoints"
+                        :activeTab="activeTab"
+                        @click="activeTab = 'endpoints'"
+                    >
+                        Endpoints
+                    </sw-tabs-item>
+                    <sw-tabs-item
+                        name="triggers"
+                        :activeTab="activeTab"
+                        @click="activeTab = 'triggers'"
+                    >
+                        Triggers
+                    </sw-tabs-item>
+                </sw-tabs>
+
+                <sw-card v-if="activeTab === 'endpoints'" title="Endpoint Status" :isLoading="isEndpointsLoading">
                     <sw-empty-state
                         v-if="!isEndpointsLoading && endpointRows.length === 0"
                         title="No endpoints found"
@@ -71,7 +91,7 @@
                     </sw-data-grid>
                 </sw-card>
 
-                <sw-card title="Mapped Trigger Endpoints" :isLoading="isLoading">
+                <sw-card v-if="activeTab === 'triggers'" title="Mapped Trigger Endpoints" :isLoading="isLoading">
                     <template #toolbar>
                         <sw-button-process
                             :isLoading="isRefreshing"

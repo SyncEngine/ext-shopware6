@@ -10,6 +10,7 @@ Component.register('syncengine-trigger-map-page', {
 
     data() {
         return {
+            activeTab: 'endpoints',
             isLoading: false,
             isEndpointsLoading: false,
             isRefreshing: false,
