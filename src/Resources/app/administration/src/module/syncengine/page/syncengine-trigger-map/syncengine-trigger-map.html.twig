@@ -91,16 +91,19 @@
                     </sw-data-grid>
                 </sw-card>
 
-                <sw-card v-if="activeTab === 'triggers'" title="Mapped Trigger Endpoints" :isLoading="isLoading">
-                    <template #toolbar>
-                        <sw-button-process
-                            :isLoading="isRefreshing"
-                            :processSuccess="false"
-                            variant="primary"
-                            @click="onRefresh"
-                        >
-                            Refresh map
-                        </sw-button-process>
+                <sw-card v-if="activeTab === 'triggers'" :isLoading="isLoading">
+                    <template #title>
+                        <div class="syncengine-trigger-map-page__card-title-inline">
+                            <span>Mapped Trigger Endpoints</span>
+                            <sw-button-process
+                                :isLoading="isRefreshing"
+                                :processSuccess="false"
+                                variant="primary"
+                                @click="onRefresh"
+                            >
+                                Refresh map
+                            </sw-button-process>
+                        </div>
                     </template>
 
                     <sw-description-list grid="1fr 2fr" class="syncengine-trigger-map-page__meta">
