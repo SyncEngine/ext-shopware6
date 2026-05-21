@@ -8,8 +8,8 @@ Shopware 6 plugin that connects a Shopware instance to [SyncEngine](https://sync
 - **Trigger discovery + mapping** from SyncEngine automations/connections to Shopware trigger blueprints
 - **Entity event dispatching** for Product, Order, and Customer create/update/delete operations
 - **Shopware Flow Builder integration** with action `Trigger SyncEngine Endpoint` (endpoint picker, optional trigger-event override, optional custom JSON payload)
-- **Connector action routes** for status, cache refresh, trigger-map inspection, and Flow endpoint listing
-- **Shopware Administration tools** to inspect and refresh the current trigger map
+- **Connector action routes** for status, cache refresh, trigger-map inspection, endpoint listing, per-endpoint status, and per-endpoint execute
+- **Shopware Administration tools** with a tabbed **SyncEngine Connector** view for endpoint status and mapped triggers
 - **Refresh trust + throttling** to protect refresh endpoint from request storms
 - **Local development support** (localhost/DDEV/docker host TLS handling)
 
@@ -164,6 +164,8 @@ The plugin exposes these Shopware API action routes:
 | `POST` | `/api/_action/syncengine/refresh` | Clears trigger map cache (throttled) |
 | `GET` | `/api/_action/syncengine/trigger-map` | Returns current cached/rebuilt trigger map |
 | `GET` | `/api/_action/syncengine/endpoints` | Returns endpoint options for Flow Builder endpoint picker |
+| `POST` | `/api/_action/syncengine/endpoint-status` | Returns status/trace info for a single endpoint |
+| `POST` | `/api/_action/syncengine/endpoint-execute` | Executes a single endpoint on demand |
 
 ### Status response
 
@@ -245,14 +247,17 @@ This keeps endpoint responsive while preventing invalidation storms.
 
 The plugin registers a settings module entry:
 
-- **Settings -> Plugins -> SyncEngine Trigger Map**
+- **Settings -> Plugins -> SyncEngine Connector**
 - **Flow Builder action -> Trigger SyncEngine Endpoint**
 
 Capabilities:
 
+- Tabbed page with **Endpoints** and **Triggers** sections
+- On-demand per-endpoint status loading (no automatic status fetch on page load)
+- Inline endpoint trace counters (`running`, `scheduled`, `queued`)
+- Per-endpoint execute action from the endpoint list
 - View all trigger keys and resolved endpoint mappings
-- Inspect endpoint counts
-- Manual refresh action (calls connector refresh endpoint)
+- Manual refresh action for trigger map (from the Triggers card header)
 - In Flow Builder: select endpoint, optionally override trigger event name, optionally provide custom JSON payload
 
 ---
@@ -279,7 +284,7 @@ Typical workflow:
 
 1. Rebuild administration bundle
 2. Clear cache if needed
-3. Reload admin and test trigger map module
+3. Reload admin and test SyncEngine Connector module
 
 ### Relevant source areas
 
