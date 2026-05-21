@@ -10,6 +10,7 @@ Shopware 6 plugin that connects a Shopware instance to [SyncEngine](https://sync
 - **Shopware Flow Builder integration** with action `Trigger SyncEngine Endpoint` (endpoint picker, optional trigger-event override, optional custom JSON payload)
 - **Connector action routes** for status, cache refresh, trigger-map inspection, endpoint listing, per-endpoint status, and per-endpoint execute
 - **Shopware Administration tools** with a tabbed **SyncEngine Connector** view for endpoint status and mapped triggers
+- **On-demand endpoint status loading** from the admin page, with per-endpoint execute actions and inline trace counters
 - **Refresh trust + throttling** to protect refresh endpoint from request storms
 - **Local development support** (localhost/DDEV/docker host TLS handling)
 
@@ -245,9 +246,10 @@ This keeps endpoint responsive while preventing invalidation storms.
 
 ## Shopware Administration UI
 
-The plugin registers a settings module entry:
+The plugin exposes three administration entry points:
 
-- **Settings -> Plugins -> SyncEngine Connector**
+- **Settings -> Plugins -> SyncEngine Connector** (plugin config card)
+- **SyncEngine Connector** tabbed admin page for endpoint status and trigger-map inspection
 - **Flow Builder action -> Trigger SyncEngine Endpoint**
 
 Capabilities:
