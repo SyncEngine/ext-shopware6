@@ -1,5 +1,24 @@
 {% block syncengine_trigger_map_page %}
     <sw-page class="syncengine-trigger-map-page">
+        <template #smart-bar-back>
+            <router-link
+                :to="{ name: 'sw.settings.index' }"
+                class="smart-bar__back-btn"
+                :aria-label="$t('global.sw-page.backButton')"
+                :title="$t('global.sw-page.backButton')"
+                :style="{ 'color': pageColor }"
+            >
+                <mt-icon
+                    name="regular-chevron-left"
+                    size="16px"
+                />
+                <mt-icon
+                    name="regular-cog"
+                    size="16px"
+                />
+            </router-link>
+        </template>
+
         <template #smart-bar-header>
             <h2><syncengine-settings-icon class="syncengine-trigger-map-page__header-icon" /> SyncEngine Connector</h2>
         </template>
